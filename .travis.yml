@@ -1,0 +1,33 @@
+dist: trusty
+sudo: false
+language: java
+
+cache:
+  directories:
+    - $HOME/.m2
+
+services:
+  - docker
+
+stages:
+  - build
+  - name: push
+    if: fork = false
+
+before_install:
+  - docker login -u="$QUAY_USER" -p="$QUAY_PASS" quay.io
+  - docker login -u="$RH_REGISTRY_USER" -p="$RH_REGISTRY_PASS" registry.redhat.io
+
+jobs:
+  include:
+  - stage: build
+    script:
+    - mvn clean compile package
+  - stage: push
+    script:
+    - export REF_TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+    - export COMMIT_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
+    - docker build -t quay.io/emergencyresponsedemo/responder-service:$REF_TAG .
+    - docker tag quay.io/emergencyresponsedemo/responder-service:$REF_TAG quay.io/emergencyresponsedemo/responder-service:$COMMIT_TAG
+    - docker push quay.io/emergencyresponsedemo/responder-service:$REF_TAG
+    - docker push quay.io/emergencyresponsedemo/responder-service:$COMMIT_TAG
