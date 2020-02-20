@@ -46,7 +46,7 @@ public class ResponderEntity {
     @Column(name = "responder_current_gps_lat", scale = 5, precision = 7)
     private BigDecimal currentPositionLatitude;
 
-    @Column(name = "responder_current_gps_long", scale = 5, precision = 7)
+    @Column(name = "responder_current_gps_long", scale = 5, precision = 8)
     private BigDecimal currentPositionLongitude;
 
     @Column(name = "boat_capacity")
